@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-set -aeo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -aeo pipefail; [[ $DOKKU_TRACE ]] && set -x  
 source $DOKKU_ROOT/$1/ENV
 APP="$1"; PORT="$2"; REVISION=`cat $DOKKU_ROOT/$APP/refs/heads/master`
 PARSER='{
         DATA=""
-        for(i=3; i<=NF; i++) DATA=DATA" -d "$(i)
-        print("echo -----> Acessing "$2"...")
-        print("curl -X "$1" "$2DATA)
+        for(i=3; i<=NF; i++) DATA=DATA" -d "$(i) 
+        print("echo \"-----> Accessing "$2" ...\"")
+        print("curl -silent -X "$1" "$2DATA" > /dev/null")
 }'
-docker run --rm app/$APP bash -c '[ -f /app/.webhook ] && cat /app/.webhook' | awk "$PARSER" | bash
+docker run --rm app/$APP bash -c '[ -f /app/.webhook ] && cat /app/.webhook; exit 0' | awk "$PARSER" | bash
+
